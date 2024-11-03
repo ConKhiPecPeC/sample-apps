@@ -8,16 +8,7 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                echo 'Home Page !'
-            }
-        }
-        stage('Run subfolder Jenkinsfile'){
-            steps{
-                script {
-                    // Load and execute Jenkinsfile from the subfolder
-                    def subPipeline = load 'game-2048-example/Jenkinsfile'
-                    subPipeline.run()
-                }
+                echo 'Hello !'
             }
         }
 
