@@ -1,14 +1,13 @@
-pipeline {
-    agent any
+// subfolder/Jenkinsfile
+def run() {
+    pipeline {
+        agent any
 
-    environment {
-        DOCKER_IMAGE = "conkhipecpec/2048-jekins"
-    }
-
-    stages {
-        stage('Hello') {
-            steps {
-                echo 'Hello, World!'
+        stages {
+            stage('Hello from Subfolder') {
+                steps {
+                    echo 'Hello from the Jenkinsfile in the subfolder!'
+                }
             }
         }
     }
