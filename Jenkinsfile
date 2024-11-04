@@ -8,10 +8,6 @@ pipeline {
         SONAR_HOST_URL = credentials('SONAR_HOST_URL')
     }
 
-    tools {
-        sonarScanner 'SonarScanner'  // The name you configured in the Global Tool Configuration
-    }
-
     stages {
         stage('Hello') {
             steps {
@@ -27,7 +23,6 @@ pipeline {
         
         stage('SonarCloud Analysis') {
             steps {
-                def scannerHome = tool 'sonar-scanner'
                 withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
                     sh '''
                     sonar-scanner \
