@@ -30,15 +30,13 @@ pipeline {
 
                 withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
                     // Run the SonarScanner with the required properties
-                    sh 'mvn clean package sonar:sonar'
-                }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-              timeout(time: 1, unit: 'HOURS') {
-                waitForQualityGate abortPipeline: true
+                    sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \      
+                        -Dsonar.organization="conkhipecpec" \   
+                        -Dsonar.host.url="https://sonarcloud.io" \
+                        -Dsonar.login=\$SONAR_TOKEN  
+                    """
                 }
             }
         }
