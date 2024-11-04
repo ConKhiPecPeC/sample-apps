@@ -22,15 +22,10 @@ pipeline {
         }
         
         stage('SonarCloud Analysis') {
+            def scannerHome = tool 'sonar-scanner';
             steps {
                 withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
-                    sh '''
-                    sonar-scanner \
-                        -Dsonar.organization="conkhipecpec" \
-                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
-                        -Dsonar.host.url="https://sonarcloud.io" \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
