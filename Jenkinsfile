@@ -20,9 +20,26 @@ pipeline {
             }
         }
 
-        stage('Set Permissions') {
+        stage('Debug Directory') {
             steps {
-                sh 'chmod +x ./gradlew' // Give execute permissions to gradlew
+                // Display directory structure to locate gradlew
+                sh 'echo "Current Directory:"'
+                sh 'pwd'
+                sh 'echo "List of Files:"'
+                sh 'ls -al'
+            }
+        }
+
+        stage('Set Permissions for Gradle Wrapper') {
+            steps {
+                // Check if gradlew exists before attempting to set permissions
+                script {
+                    if (fileExists('./gradlew')) {
+                        sh 'chmod +x ./gradlew'
+                    } else {
+                        error "gradlew not found in the current directory."
+                    }
+                }
             }
         }
 
