@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'd316831b-7188-4dd8-96dd-9c3435ca8877' 
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
-        DOCKER_TAG = 'latest'
     }
 
     stages {
@@ -20,31 +18,33 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
+        stage("build") {
+            agent { node {label 'main'}}
+            environment {
+                DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
             }
-        }
-
-        stage('Push to Docker Hub') {
             steps {
-                script {
-                    // Log in to Docker Hub using credentials and push the Docker image
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                        try {
-                            echo "Pushing Docker image ${DOCKER_IMAGE}:${DOCKER_TAG} to Docker Hub..."
-                            dockerImage.push("${DOCKER_TAG}")
-                            echo "Docker image successfully pushed."
-                        } catch (Exception e) {
-                            echo "Failed to push Docker image: ${e.getMessage()}"
-                            error("Docker push failed.")
-                        }
-                    }
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} . "
+                sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
+                sh "docker image ls | grep ${DOCKER_IMAGE}"
+                withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
                 }
+
+                //clean to save disk
+                sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
         
+    }
+    post {
+        success {
+            echo "SUCCESSFUL"
+            }
+        failure {
+            echo "FAILED"            
     }
 }
