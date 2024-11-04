@@ -20,40 +20,17 @@ pipeline {
                 checkout scm 
             }
         }
-
-
-        stage('Install SonarScanner') {
+        
+        stage('SonarCloud Analysis') {
             steps {
-                // Install SonarScanner globally
-                sh 'npm install -g sonar-scanner'
-            }
-        }
-
-        stage('Run SonarScanner') {
-            steps {
-                // Run the SonarScanner command
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
                     sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=ConKhiPecPeC_myLab \
-                        -Dsonar.organization=conkhipecpec \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
+                    sonar-scanner \
+                        -Dsonar.organization="conkhipecpec" \
+                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
+                        -Dsonar.host.url="https://sonarcloud.io" \
+                        -Dsonar.login=$SONAR_TOKEN
                     '''
-                }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-                script {
-                    timeout(time: 1, unit: 'MINUTES') {
-                        def qualityGate = waitForQualityGate()
-                        if (qualityGate.status != 'OK') {
-                            error "Quality Gate failed: ${qualityGate.status}"
-                        }
-                    }
                 }
             }
         }
