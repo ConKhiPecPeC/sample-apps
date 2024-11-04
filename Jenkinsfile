@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
+        SONAR_TOKEN = credentials('sonarcloud-token')
     }
 
     stages {
@@ -15,7 +16,34 @@ pipeline {
 
         stage('Check Out') {
             steps {
-                echo 'Check by Sonarqube'
+                checkout scm 
+            }
+        }
+
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { // 'SonarCloud' là tên của cấu hình SonarQube trong Jenkins
+                    sh """
+                    ./gradlew sonarqube \
+                        -Dsonar.organization="your-sonarcloud-organization" \
+                        -Dsonar.projectKey="your-sonarcloud-project-key" \
+                        -Dsonar.host.url="https://sonarcloud.io" \
+                        -Dsonar.login=$SONAR_TOKEN
+                    """
+                }
+            }
+        }
+
+        stage("Quality Gate") {
+            steps {
+                script {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        def qualityGate = waitForQualityGate()
+                        if (qualityGate.status != 'OK') {
+                            error "Quality Gate failed: ${qualityGate.status}"
+                        }
+                    }
+                }
             }
         }
 
