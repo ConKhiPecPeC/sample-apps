@@ -30,7 +30,10 @@ pipeline {
                                 -Dsonar.organization="conkhipecpec" \
                                 -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
                                 -Dsonar.host.url="https://sonarcloud.io" \
-                                -Dsonar.login=$SONAR_TOKEN
+                                -Dsonar.login=$SONAR_TOKEN \
+                                -Dsonar.scanner.cache.disabled=true \
+                                -Dsonar.scm.exclusions.disabled=true \
+                                -Djava.io.tmpdir=/tmp  # Set the temporary directory to /tmp
                             '''
                         }
                     }
