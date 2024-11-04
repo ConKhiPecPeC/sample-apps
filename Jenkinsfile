@@ -25,20 +25,23 @@ pipeline {
             steps {
                 script {
                     // Define the scanner home
-                    def scannerHome = tool 'sonar-scanner' // Must match the name of an actual scanner installation directory on your Jenkins build agent
+                    scannerHome = tool 'sonar-scanner' // Must match the name of an actual scanner installation directory on your Jenkins build agent
                 }
-                    withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
-                        // Run the SonarScanner with the required properties
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \      # Replace with your SonarCloud project key
-                            -Dsonar.organization="conkhipecpec" \   # Replace with your SonarCloud organization
-                            -Dsonar.host.url="https://sonarcloud.io" \
-                            -Dsonar.login=\$SONAR_TOKEN  # Use the SonarCloud token from the environment
-                        """
-                    }
+
+                withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
+                    // Run the SonarScanner with the required properties
+                    sh 'mvn clean package sonar:sonar'
                 }
             }
+        }
+
+        stage("Quality Gate") {
+            steps {
+              timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage("build") {
             //agent { node {label 'master'}}
