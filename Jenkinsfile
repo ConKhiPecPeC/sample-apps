@@ -22,14 +22,18 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
-                    sh '''
-                    sonar-scanner \
-                        -Dsonar.organization="conkhipecpec" \
-                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
-                        -Dsonar.host.url="https://sonarcloud.io" \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                withSonarQubeEnv('SonarCloud') {
+                    script {
+                        docker.image('sonarsource/sonar-scanner-cli').inside {
+                            sh '''
+                            sonar-scanner \
+                                -Dsonar.organization="conkhipecpec" \
+                                -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
+                                -Dsonar.host.url="https://sonarcloud.io" \
+                                -Dsonar.login=$SONAR_TOKEN
+                            '''
+                        }
+                    }
                 }
             }
         }
