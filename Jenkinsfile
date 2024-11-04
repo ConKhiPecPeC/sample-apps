@@ -26,7 +26,7 @@ pipeline {
                 script {
                     // Define the scanner home
                     def scannerHome = tool 'sonar-scanner' // Must match the name of an actual scanner installation directory on your Jenkins build agent
-                    
+                }
                     withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
                         // Run the SonarScanner with the required properties
                         sh """
@@ -39,7 +39,6 @@ pipeline {
                     }
                 }
             }
-        }
 
         stage("build") {
             //agent { node {label 'master'}}
