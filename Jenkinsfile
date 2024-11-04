@@ -1,11 +1,10 @@
 pipeline {
     agent any
-    
+
     environment {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
-        SONAR_HOST_URL = credentials('SONAR_HOST_URL')
     }
 
     stages {
@@ -17,37 +16,36 @@ pipeline {
 
         stage('Check Out') {
             steps {
-                checkout scm 
+                checkout scm
             }
         }
-        
+
         stage('SonarCloud Analysis') {
             steps {
                 script {
                     // Define the scanner home
-                    scannerHome = tool 'sonar-scanner' // Must match the name of an actual scanner installation directory on your Jenkins build agent
+                    scannerHome = tool 'sonar-scanner'
                 }
 
-                withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
+                withSonarQubeEnv('SonarCloud') {
                     // Run the SonarScanner with the required properties
                     sh """
                     ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \      
-                        -Dsonar.organization="conkhipecpec" \   
+                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
+                        -Dsonar.organization="conkhipecpec" \
                         -Dsonar.host.url="https://sonarcloud.io" \
-                        -Dsonar.login=\$SONAR_TOKEN  
+                        -Dsonar.login=\$SONAR_TOKEN
                     """
                 }
             }
         }
 
-        stage("build") {
-            //agent { node {label 'master'}}
+        stage("Build") {
             environment {
-                DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
+                DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
             }
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} . "
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
                 sh "docker image ls | grep ${DOCKER_IMAGE}"
                 withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -56,21 +54,19 @@ pipeline {
                     sh "docker push ${DOCKER_IMAGE}:latest"
                 }
 
-                //clean to save disk
+                // Clean up to save disk space
                 sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
-        
     }
 
-    post{
-        success{
+    post {
+        success {
             echo "SUCCESSFUL"
         }
-        failure{
+        failure {
             echo "FAILED"
         }
     }
-    
 }
