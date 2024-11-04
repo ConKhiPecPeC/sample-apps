@@ -21,15 +21,6 @@ pipeline {
             }
         }
 
-        stage('Set up JDK 17') {
-            steps {
-                // Install JDK 17 (ensure you have the required JDK installed on Jenkins)
-                script {
-                    env.JAVA_HOME = tool name: 'JDK 17', type: 'jdk' // Replace with your JDK installation name
-                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-                }
-            }
-        }
 
         stage('Install SonarScanner') {
             steps {
