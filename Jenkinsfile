@@ -28,7 +28,7 @@ pipeline {
                             sh '''
                             # Create a writable cache directory
                             mkdir -p /tmp/.sonar/cache
-                            chmod 777 /.sonar
+                            chmod 777 /tmp/.sonar/
                             export SONAR_SCANNER_OPTS="-Dsonar.cache.directory=/tmp/.sonar/cache"
 
                             # Run the SonarScanner command
