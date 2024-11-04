@@ -25,8 +25,8 @@ pipeline {
                 withSonarQubeEnv('SonarCloud') { // 'SonarCloud' là tên của cấu hình SonarQube trong Jenkins
                     sh """
                     ./gradlew sonarqube \
-                        -Dsonar.organization="your-sonarcloud-organization" \
-                        -Dsonar.projectKey="your-sonarcloud-project-key" \
+                        -Dsonar.organization="conkhipecpec" \
+                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
                         -Dsonar.host.url="https://sonarcloud.io" \
                         -Dsonar.login=$SONAR_TOKEN
                     """
