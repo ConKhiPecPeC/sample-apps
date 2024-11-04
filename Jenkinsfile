@@ -5,6 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
+        SONAR_HOST_URL = credentials('SONAR_HOST_URL')
     }
 
     stages {
@@ -20,26 +21,35 @@ pipeline {
             }
         }
 
-        stage('SonarCloud Analysis') {
+        stage('Set up JDK 17') {
             steps {
-                withSonarQubeEnv('SonarCloud') {
-                    script {
-                        docker.image('sonarsource/sonar-scanner-cli').inside {
-                            sh '''
-                            # Create a writable cache directory
-                            mkdir -p /tmp/.sonar/cache
-                            chmod 777 /tmp/.sonar/
-                            export SONAR_SCANNER_OPTS="-Dsonar.cache.directory=/tmp/.sonar/cache"
+                // Install JDK 17 (ensure you have the required JDK installed on Jenkins)
+                script {
+                    env.JAVA_HOME = tool name: 'JDK 17', type: 'jdk' // Replace with your JDK installation name
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+            }
+        }
 
-                            # Run the SonarScanner command
-                            sonar-scanner \
-                                -Dsonar.organization="conkhipecpec" \
-                                -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
-                                -Dsonar.host.url="https://sonarcloud.io" \
-                                -Dsonar.login=$SONAR_TOKEN
-                            '''
-                        }
-                    }
+        stage('Install SonarScanner') {
+            steps {
+                // Install SonarScanner globally
+                sh 'npm install -g sonar-scanner'
+            }
+        }
+
+        stage('Run SonarScanner') {
+            steps {
+                // Run the SonarScanner command
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=ConKhiPecPeC_myLab \
+                        -Dsonar.organization=conkhipecpec \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    '''
                 }
             }
         }
