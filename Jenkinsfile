@@ -22,14 +22,14 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') { // 'SonarCloud' là tên của cấu hình SonarQube trong Jenkins
-                    sh """
+                withSonarQubeEnv('SonarCloud') {
+                    sh '''
                     ./gradlew sonarqube \
                         -Dsonar.organization="conkhipecpec" \
                         -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
                         -Dsonar.host.url="https://sonarcloud.io" \
                         -Dsonar.login=$SONAR_TOKEN
-                    """
+                    '''
                 }
             }
         }
