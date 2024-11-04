@@ -26,14 +26,16 @@ pipeline {
                     script {
                         docker.image('sonarsource/sonar-scanner-cli').inside {
                             sh '''
+                            # Create a writable cache directory
+                            mkdir -p /tmp/.sonar/cache
+                            export SONAR_SCANNER_OPTS="-Dsonar.cache.directory=/tmp/.sonar/cache"
+
+                            # Run the SonarScanner command
                             sonar-scanner \
                                 -Dsonar.organization="conkhipecpec" \
                                 -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \
                                 -Dsonar.host.url="https://sonarcloud.io" \
-                                -Dsonar.login=$SONAR_TOKEN \
-                                -Dsonar.scanner.cache.disabled=true \
-                                -Dsonar.scm.exclusions.disabled=true \
-                                -Djava.io.tmpdir=/tmp  # Set the temporary directory to /tmp
+                                -Dsonar.login=$SONAR_TOKEN
                             '''
                         }
                     }
