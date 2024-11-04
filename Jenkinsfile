@@ -1,8 +1,9 @@
 pipeline {
     agent any
-
+    
     environment {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
+        DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
     }
 
     stages {
