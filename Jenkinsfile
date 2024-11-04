@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
 
     environment {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
@@ -40,11 +40,14 @@ pipeline {
         }
         
     }
-    post {
-        success {
+
+    post{
+        success{
             echo "SUCCESSFUL"
-            }
-        failure {
-            echo "FAILED"            
+        }
+        failure{
+            echo "FAILED"
+        }
     }
+    
 }
