@@ -22,14 +22,21 @@ pipeline {
         }
         
         stage('SonarCloud Analysis') {
-            
             steps {
                 script {
-                    scannerHome = tool 'sonar-scanner'// must match the name of an actual scanner installation directory on your Jenkins build agent
+                    // Define the scanner home
+                    scannerHome = tool 'sonar-scanner' // Must match the name of an actual scanner installation directory on your Jenkins build agent
                 }
 
-                withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
-                    sh "${scannerHome}/bin/sonar-scanner"
+                withSonarQubeEnv('SonarCloud') {  // Use the SonarCloud environment configuration in Jenkins
+                    // Run the SonarScanner with the required properties
+                    sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey="ConKhiPecPeC_sample-apps" \      # Replace with your SonarCloud project key
+                        -Dsonar.organization="conkhipecpec" \   # Replace with your SonarCloud organization
+                        -Dsonar.host.url="https://sonarcloud.io" \
+                        -Dsonar.login=\$SONAR_TOKEN  # Use the SonarCloud token from the environment
+                    """
                 }
             }
         }
