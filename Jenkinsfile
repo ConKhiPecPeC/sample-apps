@@ -20,6 +20,12 @@ pipeline {
             }
         }
 
+        stage('Set Permissions') {
+            steps {
+                sh 'chmod +x ./gradlew' // Give execute permissions to gradlew
+            }
+        }
+
         stage('SonarCloud Analysis') {
             steps {
                 withSonarQubeEnv('SonarCloud') {
