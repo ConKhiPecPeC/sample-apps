@@ -6,6 +6,7 @@ pipeline {
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
         SONAR_HOST_URL = credentials('SONAR_HOST_URL')
+        PATH = "${PATH}:/opt/sonar-scanner/bin"
     }
 
     stages {
