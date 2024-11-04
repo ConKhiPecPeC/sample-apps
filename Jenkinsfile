@@ -6,7 +6,10 @@ pipeline {
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
         SONAR_HOST_URL = credentials('SONAR_HOST_URL')
-        PATH = "${PATH}:/opt/sonar-scanner/bin"
+    }
+
+    tools {
+        sonarScanner 'SonarScanner'  // The name you configured in the Global Tool Configuration
     }
 
     stages {
@@ -24,6 +27,7 @@ pipeline {
         
         stage('SonarCloud Analysis') {
             steps {
+                def scannerHome = tool 'sonar-scanner'
                 withSonarQubeEnv('SonarCloud') {  // Uses SonarQube environment configuration in Jenkins
                     sh '''
                     sonar-scanner \
