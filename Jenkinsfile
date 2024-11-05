@@ -39,8 +39,21 @@ pipeline {
                 }
             }
         }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') { // Wait up to 5 minutes for Quality Gate result
+                    script {
+                        def qualityGate = waitForQualityGate() // Requires SonarQube plugin in Jenkins
+                        if (qualityGate.status != 'OK') {
+                            error "Pipeline aborted due to Quality Gate failure: ${qualityGate.status}"
+                        }
+                    }
+                }
+            }
+        }
 
-        stage("Build") {
+        stage("Build And Push Docker Image") {
             environment {
                 DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
             }
