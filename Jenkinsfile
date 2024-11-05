@@ -82,7 +82,7 @@ pipeline {
                 script {
                     // Use SSH to connect to the Google Cloud instance and deploy the Docker container
                     sh """
-                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} user@${GOOGLE_CLOUD_IP} << EOF
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} huy123@${GOOGLE_CLOUD_IP} << EOF
                         docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD
                         docker pull ${DOCKER_IMAGE}:latest
                         docker stop my-app || true  # Stop any running container named my-app
