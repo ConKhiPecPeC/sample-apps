@@ -53,20 +53,24 @@ pipeline {
                 }
             }
         }
-
+/* 
         stage('Build Docker Image'){
             environment{
                 DOCKER_TAG = "lastest"
             }
             steps{
+                sh 'docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
-
+*/
         stage('Push Image to Docker Hub'){
+            environment{
+                DOCKER_TAG = "lastest"
+            }
             steps{
                 withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                    sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
                     sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
                 }
             }
@@ -139,7 +143,7 @@ pipeline {
 
         }
         */
-        
+
         
     }
 
