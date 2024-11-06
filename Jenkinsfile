@@ -22,12 +22,19 @@ pipeline {
             }
         }
 
-        stage('Deploy'){
-        withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', sshKeyVariable: 'SSH_KEY')])
-            {
-            sh "ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 "echo 'Hello SSH' "
+        stage('Deploy') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    script {
+                        // Use SSH to connect and echo "Hello SSH"
+                        sh """
+                            ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 'echo "Hello SSH"'
+                        """
+                    }
+                }
             }
-        }   
+        }
+    
 /* 
         stage('SonarCloud Analysis') {
             steps {
