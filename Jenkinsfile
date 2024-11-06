@@ -6,6 +6,7 @@ pipeline {
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
         GOOGLE_CLOUD_SSH = 'google-cloud-ssh'
+        DOCKER_TAG = "latest"
     }
 
     stages {
@@ -55,9 +56,6 @@ pipeline {
         }
 
         stage('Build Docker Image'){
-            environment{
-                DOCKER_TAG = "latest"
-            }
             steps{
                 sh '''
                     if docker image inspect ${DOCKER_IMAGE}:${DOCKER_TAG} > /dev/null 2>&1; then
@@ -69,34 +67,11 @@ pipeline {
         }
 
         stage('Push Image to Docker Hub'){
-            environment{
-                DOCKER_TAG = "latest"
-            }
             steps{
                 withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
                     sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
                 }
-            }
-        }
-/* 
-        stage("Build And Push Docker Image") {
-            environment {
-                DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
-            }
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
-                sh "docker image ls | grep ${DOCKER_IMAGE}"
-                withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
-                }
-
-                // Clean up to save disk space
-                sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
 
@@ -126,11 +101,11 @@ pipeline {
 
                                         # Pull the Docker image
                                         echo "Pulling Docker image ${DOCKER_IMAGE}..."
-                                        sudo docker pull ${DOCKER_IMAGE}
+                                        sudo docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
 
                                         # Run the Docker container with --rm to avoid name conflicts
                                         echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        sudo docker run -d --rm -it -p 8080:8080 --name my-container ${DOCKER_IMAGE}
+                                        sudo docker run -it -p 80:8080 --name my-container ${DOCKER_IMAGE}:${DOCKER_TAG}
 
                                         # Print Docker logs if something goes wrong
                                         echo "Docker logs:"
@@ -146,8 +121,6 @@ pipeline {
             }
 
         }
-        */
-
         
     }
 
