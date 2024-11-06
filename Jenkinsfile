@@ -108,23 +108,9 @@ pipeline {
         }
 
     */ 
-    stage('set up SSH'){
-        environment{
-            GCLOUD_INSTANCE_IP = credentials('google_cloud_ip')
-            GCLOUD_USER = huy123
-            SSH_KEY = credentials('ssh-key')
-        }
-
-        steps{
-            script {
-                    echo "Testing SSH connection and echoing message"
-                    // Construct the SSH command to echo "Hello SSH"
-                    def sshCommand = """
-                        ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${GCLOUD_USER}@${GCLOUD_INSTANCE_IP} "echo 'Hello SSH'"
-                    """
-                    // Execute the SSH command
-                    sh sshCommand
-                }
+    stage('Deploy'){
+        withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', sshKeyVariable: 'SSH_KEY')]){
+            sh "ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 "echo 'Hello SSH' "
         }
     }
         
