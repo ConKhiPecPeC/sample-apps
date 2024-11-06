@@ -21,6 +21,13 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('Deploy'){
+        withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', sshKeyVariable: 'SSH_KEY')])
+            {
+            sh "ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 "echo 'Hello SSH' "
+            }
+        }   
 /* 
         stage('SonarCloud Analysis') {
             steps {
@@ -77,7 +84,7 @@ pipeline {
 */  
 
 //SSH to Google Cloud instance
-/*         stage('Connect to Google Cloud and Deploy Docker Container') {
+/*      stage('Connect to Google Cloud and Deploy Docker Container') {
             steps {
                 // Securely pass SSH key and Docker credentials
                 withCredentials([
@@ -108,11 +115,7 @@ pipeline {
         }
 
     */ 
-    stage('Deploy'){
-        withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', sshKeyVariable: 'SSH_KEY')]){
-            sh "ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 "echo 'Hello SSH' "
-        }
-    }
+
         
     }
 
