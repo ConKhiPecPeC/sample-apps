@@ -85,7 +85,7 @@ pipeline {
                                 sshTransfer(
                                     sourceFiles: '',  // No files to transfer
                                     execCommand: """
-                                        # Ensure Docker is installed
+                                        # Ensure Docker is installed and running
                                         if ! command -v docker &> /dev/null
                                         then
                                             echo "Docker not found, installing Docker..."
@@ -94,23 +94,30 @@ pipeline {
                                             sudo systemctl enable docker
                                         fi
 
+                                        # Check Docker service status
+                                        echo "Checking Docker service status..."
+                                        sudo systemctl status docker || sudo systemctl start docker
+
                                         # Pull the Docker image
                                         echo "Pulling Docker image ${DOCKER_IMAGE}..."
-                                        docker pull ${DOCKER_IMAGE}
+                                        sudo docker pull ${DOCKER_IMAGE}
 
-                                        # Run the Docker container
+                                        # Run the Docker container with --rm to avoid name conflicts
                                         echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        docker run -d --name my-container ${DOCKER_IMAGE}
+                                        sudo docker run -d --rm --name my-container ${DOCKER_IMAGE}
+
+                                        # Print Docker logs if something goes wrong
+                                        echo "Docker logs:"
+                                        sudo journalctl -u docker.service --since "1 hour ago" || echo "No Docker logs found"
                                     """,
                                     remoteDirectory: '',  // No file upload, only command execution
-                                    execTimeout: 300000  // Allowing 5 minutes for the commands to complete
+                                    execTimeout: 600000  // Allowing 10 minutes for the commands to complete
                                 )
                             ]
                         )
                     ])
                 }
             }
-    
         }
         
     }
