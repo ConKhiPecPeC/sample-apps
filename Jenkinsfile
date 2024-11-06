@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
-         GOOGLE_CLOUD_SSH = 'google-cloud-ssh'
+        GOOGLE_CLOUD_SSH = 'google-cloud-ssh'
     }
 
     stages {
@@ -53,6 +53,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image'){
+            environment{
+                DOCKER_TAG = "lastest"
+            }
+            steps{
+                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+            }
+        }
+
+        stage('Push Image to Docker Hub'){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                    sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                }
+            }
+        }
 /* 
         stage("Build And Push Docker Image") {
             environment {
@@ -73,7 +91,7 @@ pipeline {
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
-*/
+
         stage('Pull Docker Image and Run Container') {
             steps {
                 script {
@@ -118,7 +136,10 @@ pipeline {
                     ])
                 }
             }
+
         }
+        */
+        
         
     }
 
