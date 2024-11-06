@@ -5,6 +5,8 @@ pipeline {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
+        GOOGLE_CLOUD_IP = credentials('google_cloud_ip')    // Replace with your instance IP
+        SSH_KEY = credentials('google-cloud-ssh-key')
     }
 
     stages {
@@ -52,7 +54,7 @@ pipeline {
                 }
             }
         }
-
+/* 
         stage("Build And Push Docker Image") {
             environment {
                 DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
@@ -72,6 +74,31 @@ pipeline {
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
+*/
+        stage('Connect to Google Cloud and Deploy Docker Container') {
+            steps {
+                script {
+                    // Run SSH command to pull Docker image and start container
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} huy123@${GOOGLE_CLOUD_IP} << 'EOF'
+                        echo "Logging into Docker Hub..."
+                        echo \$DOCKER_PASSWORD | docker login --username \$DOCKER_USERNAME --password-stdin || exit 1
+                        
+                        echo "Pulling latest Docker image..."
+                        docker pull ${DOCKER_IMAGE}:latest || exit 1
+                        
+                        echo "Stopping any existing container named 'my-app'..."
+                        docker stop my-app || true
+                        docker rm my-app || true
+                        
+                        echo "Running new Docker container..."
+                        docker run -d --name my-app -p 80:80 ${DOCKER_IMAGE}:latest || exit 1
+                    EOF
+                    """
+                }
+            }
+        }
+        
     }
 
     post {
