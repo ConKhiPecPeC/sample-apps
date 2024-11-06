@@ -74,8 +74,10 @@ pipeline {
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
-*/
-        stage('Connect to Google Cloud and Deploy Docker Container') {
+*/  
+
+//SSH to Google Cloud instance
+/*         stage('Connect to Google Cloud and Deploy Docker Container') {
             steps {
                 // Securely pass SSH key and Docker credentials
                 withCredentials([
@@ -104,6 +106,27 @@ pipeline {
                 }
             }
         }
+
+    */ 
+    stage('set up SSH'){
+        environment{
+            GCLOUD_INSTANCE_IP = credentials('google_cloud_ip')
+            GCLOUD_USER = credentials('google-cloud-user')
+            SSH_KEY = credentials('ssh-key')
+        }
+
+        steps{
+            script {
+                    echo "Testing SSH connection and echoing message"
+                    // Construct the SSH command to echo "Hello SSH"
+                    def sshCommand = """
+                        ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${GCLOUD_USER}@${GCLOUD_INSTANCE_IP} "echo 'Hello SSH'"
+                    """
+                    // Execute the SSH command
+                    sh sshCommand
+                }
+        }
+    }
         
     }
 
