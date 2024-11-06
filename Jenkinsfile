@@ -56,7 +56,7 @@ pipeline {
 
         stage('Build Docker Image'){
             environment{
-                DOCKER_TAG = "lastest"
+                DOCKER_TAG = "latest"
             }
             steps{
                 sh 'docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}'
