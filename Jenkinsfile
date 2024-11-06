@@ -24,30 +24,41 @@ pipeline {
         stage('Pull Docker Image and Run Container') {
             steps {
                 script {
-                    // Kết nối SSH đến Google Cloud instance
+                    // Using the SSH Publisher to execute commands on the Google Cloud instance
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: GOOGLE_CLOUD_SSH,
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: '',  // Không cần chuyển file từ Jenkins
+                                    sourceFiles: '',  // No files to transfer
                                     execCommand: """
-                                        # Kéo Docker image từ Docker Hub
+                                        # Ensure Docker is installed
+                                        if ! command -v docker &> /dev/null
+                                        then
+                                            echo "Docker not found, installing Docker..."
+                                            curl -fsSL https://get.docker.com | bash
+                                            sudo systemctl start docker
+                                            sudo systemctl enable docker
+                                        fi
+
+                                        # Pull the Docker image
+                                        echo "Pulling Docker image ${DOCKER_IMAGE}..."
                                         docker pull ${DOCKER_IMAGE}
-                                        
-                                        # Chạy container từ image đã kéo về
+
+                                        # Run the Docker container
+                                        echo "Running Docker container from image ${DOCKER_IMAGE}..."
                                         docker run -d --name my-container ${DOCKER_IMAGE}
                                     """,
-                                    remoteDirectory: '',  // Không cần thư mục đích trên server
-                                    execTimeout: 120000  // Thời gian chờ tối đa cho mỗi lệnh (120 giây)
+                                    remoteDirectory: '',  // No file upload, only command execution
+                                    execTimeout: 300000  // Allowing 5 minutes for the commands to complete
                                 )
                             ]
                         )
                     ])
                 }
             }
+    
         }
-    }
     
 /* 
         stage('SonarCloud Analysis') {
