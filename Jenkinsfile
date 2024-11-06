@@ -21,46 +21,6 @@ pipeline {
             }
         }
 
-        stage('Pull Docker Image and Run Container') {
-            steps {
-                script {
-                    // Using the SSH Publisher to execute commands on the Google Cloud instance
-                    sshPublisher(publishers: [
-                        sshPublisherDesc(
-                            configName: GOOGLE_CLOUD_SSH,
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: '',  // No files to transfer
-                                    execCommand: """
-                                        # Ensure Docker is installed
-                                        if ! command -v docker &> /dev/null
-                                        then
-                                            echo "Docker not found, installing Docker..."
-                                            curl -fsSL https://get.docker.com | bash
-                                            sudo systemctl start docker
-                                            sudo systemctl enable docker
-                                        fi
-
-                                        # Pull the Docker image
-                                        echo "Pulling Docker image ${DOCKER_IMAGE}..."
-                                        docker pull ${DOCKER_IMAGE}
-
-                                        # Run the Docker container
-                                        echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        docker run -d --name my-container ${DOCKER_IMAGE}
-                                    """,
-                                    remoteDirectory: '',  // No file upload, only command execution
-                                    execTimeout: 300000  // Allowing 5 minutes for the commands to complete
-                                )
-                            ]
-                        )
-                    ])
-                }
-            }
-    
-        }
-    
-/* 
         stage('SonarCloud Analysis') {
             steps {
                 script {
@@ -113,41 +73,45 @@ pipeline {
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
-*/  
 
-//SSH to Google Cloud instance
-/*      stage('Connect to Google Cloud and Deploy Docker Container') {
+        stage('Pull Docker Image and Run Container') {
             steps {
-                // Securely pass SSH key and Docker credentials
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER'),
-                    usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')
-                ]) {
-                    script {
-                        // Use the securely provided variables within `sh`
-                        sh '''
-                        ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" "$SSH_USER@$GOOGLE_CLOUD_IP" << 'EOF'
-                            echo "Logging into Docker Hub..."
-                            echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin || exit 1
-                            
-                            echo "Pulling latest Docker image..."
-                            docker pull '"$DOCKER_IMAGE:latest"' || exit 1
-                            
-                            echo "Stopping any existing container named 'my-app'..."
-                            docker stop my-app || true
-                            docker rm my-app || true
-                            
-                            echo "Running new Docker container..."
-                            docker run -d --name my-app -p 80:80 '"$DOCKER_IMAGE:latest"' || exit 1
-                        EOF
-                        '''
-                    }
+                script {
+                    // Using the SSH Publisher to execute commands on the Google Cloud instance
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: GOOGLE_CLOUD_SSH,
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: '',  // No files to transfer
+                                    execCommand: """
+                                        # Ensure Docker is installed
+                                        if ! command -v docker &> /dev/null
+                                        then
+                                            echo "Docker not found, installing Docker..."
+                                            curl -fsSL https://get.docker.com | bash
+                                            sudo systemctl start docker
+                                            sudo systemctl enable docker
+                                        fi
+
+                                        # Pull the Docker image
+                                        echo "Pulling Docker image ${DOCKER_IMAGE}..."
+                                        docker pull ${DOCKER_IMAGE}
+
+                                        # Run the Docker container
+                                        echo "Running Docker container from image ${DOCKER_IMAGE}..."
+                                        docker run -d --name my-container ${DOCKER_IMAGE}
+                                    """,
+                                    remoteDirectory: '',  // No file upload, only command execution
+                                    execTimeout: 300000  // Allowing 5 minutes for the commands to complete
+                                )
+                            ]
+                        )
+                    ])
                 }
             }
+    
         }
-
-    */ 
-
         
     }
 
