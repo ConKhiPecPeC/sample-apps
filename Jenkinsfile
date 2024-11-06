@@ -104,7 +104,7 @@ pipeline {
 
                                         # Run the Docker container with --rm to avoid name conflicts
                                         echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        sudo docker run -d --rm --name my-container ${DOCKER_IMAGE}
+                                        sudo docker run -d --rm -it -p 80:8080 --name my-container ${DOCKER_IMAGE}
 
                                         # Print Docker logs if something goes wrong
                                         echo "Docker logs:"
