@@ -111,7 +111,7 @@ pipeline {
     stage('set up SSH'){
         environment{
             GCLOUD_INSTANCE_IP = credentials('google_cloud_ip')
-            GCLOUD_USER = credentials('google-cloud-user')
+            GCLOUD_USER = huy123
             SSH_KEY = credentials('ssh-key')
         }
 
