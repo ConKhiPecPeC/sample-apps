@@ -5,8 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'conkhipecpec/2048-jenkins'
         DOCKER_CONFIG = "${env.WORKSPACE}/.docker" // Set a writable Docker config path
         SONAR_TOKEN = credentials('sonarcloud-token')
-        GOOGLE_CLOUD_IP = credentials('google_cloud_ip')    // Replace with your instance IP
-        SSH_KEY = credentials('google-cloud-ssh-key')
+         GOOGLE_CLOUD_SSH = 'google-cloud-ssh'
     }
 
     stages {
@@ -22,18 +21,33 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Pull Docker Image and Run Container') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    script {
-                        // Use SSH to connect and echo "Hello SSH"
-                        sh """
-                            ssh -o StrictHostKeyChecking=no -i $SSH_KEY huy123@34.57.18.241 'echo "Hello SSH"'
-                        """
-                    }
+                script {
+                    // Kết nối SSH đến Google Cloud instance
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: GOOGLE_CLOUD_SSH,
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: '',  // Không cần chuyển file từ Jenkins
+                                    execCommand: """
+                                        # Kéo Docker image từ Docker Hub
+                                        docker pull ${DOCKER_IMAGE}
+                                        
+                                        # Chạy container từ image đã kéo về
+                                        docker run -d --name my-container ${DOCKER_IMAGE}
+                                    """,
+                                    remoteDirectory: '',  // Không cần thư mục đích trên server
+                                    execTimeout: 120000  // Thời gian chờ tối đa cho mỗi lệnh (120 giây)
+                                )
+                            ]
+                        )
+                    ])
                 }
             }
         }
+    }
     
 /* 
         stage('SonarCloud Analysis') {
