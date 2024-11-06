@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
- 
+/* 
         stage("Build And Push Docker Image") {
             environment {
                 DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
@@ -73,7 +73,7 @@ pipeline {
                 sh "docker image rm ${DOCKER_IMAGE}:latest"
             }
         }
-
+*/
         stage('Pull Docker Image and Run Container') {
             steps {
                 script {
@@ -104,7 +104,7 @@ pipeline {
 
                                         # Run the Docker container with --rm to avoid name conflicts
                                         echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        sudo docker run -d --rm -it -p 80:8080 --name my-container ${DOCKER_IMAGE}
+                                        sudo docker run -d --rm -it -p 8080:8080 --name my-container ${DOCKER_IMAGE}
 
                                         # Print Docker logs if something goes wrong
                                         echo "Docker logs:"
