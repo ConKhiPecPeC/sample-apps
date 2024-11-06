@@ -21,7 +21,7 @@ pipeline {
                 checkout scm
             }
         }
-
+/* 
         stage('SonarCloud Analysis') {
             steps {
                 script {
@@ -54,7 +54,7 @@ pipeline {
                 }
             }
         }
-/* 
+ 
         stage("Build And Push Docker Image") {
             environment {
                 DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
