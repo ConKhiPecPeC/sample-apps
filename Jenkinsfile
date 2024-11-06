@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-/
+
         stage('Build Docker Image'){
             environment{
                 DOCKER_TAG = "lastest"
