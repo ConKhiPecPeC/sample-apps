@@ -77,24 +77,30 @@ pipeline {
 */
         stage('Connect to Google Cloud and Deploy Docker Container') {
             steps {
-                script {
-                    // Run SSH command to pull Docker image and start container
-                    sh """
-                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} huy123@${GOOGLE_CLOUD_IP} << 'EOF'
-                        echo "Logging into Docker Hub..."
-                        echo \$DOCKER_PASSWORD | docker login --username \$DOCKER_USERNAME --password-stdin || exit 1
-                        
-                        echo "Pulling latest Docker image..."
-                        docker pull ${DOCKER_IMAGE}:latest || exit 1
-                        
-                        echo "Stopping any existing container named 'my-app'..."
-                        docker stop my-app || true
-                        docker rm my-app || true
-                        
-                        echo "Running new Docker container..."
-                        docker run -d --name my-app -p 80:80 ${DOCKER_IMAGE}:latest || exit 1
-                    EOF
-                    """
+                // Securely pass SSH key and Docker credentials
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'google-cloud-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER'),
+                    usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')
+                ]) {
+                    script {
+                        // Use the securely provided variables within `sh`
+                        sh """
+                        ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${SSH_USER}@${GOOGLE_CLOUD_IP} << 'EOF'
+                            echo "Logging into Docker Hub..."
+                            echo \$DOCKER_PASSWORD | docker login --username \$DOCKER_USERNAME --password-stdin || exit 1
+                            
+                            echo "Pulling latest Docker image..."
+                            docker pull ${DOCKER_IMAGE}:latest || exit 1
+                            
+                            echo "Stopping any existing container named 'my-app'..."
+                            docker stop my-app || true
+                            docker rm my-app || true
+                            
+                            echo "Running new Docker container..."
+                            docker run -d --name my-app -p 80:80 ${DOCKER_IMAGE}:latest || exit 1
+                        EOF
+                        """
+                    }
                 }
             }
         }
