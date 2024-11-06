@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-/* 
+/
         stage('Build Docker Image'){
             environment{
                 DOCKER_TAG = "lastest"
@@ -63,10 +63,10 @@ pipeline {
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
-*/
+
         stage('Push Image to Docker Hub'){
             environment{
-                DOCKER_TAG = "lastest"
+                DOCKER_TAG = "latest"
             }
             steps{
                 withCredentials([usernamePassword(credentialsId: 'Docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
