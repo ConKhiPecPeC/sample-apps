@@ -59,7 +59,11 @@ pipeline {
                 DOCKER_TAG = "latest"
             }
             steps{
-                sh 'docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                sh '''
+                    if docker image inspect ${DOCKER_IMAGE}:${DOCKER_TAG} > /dev/null 2>&1; then
+                        docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    fi
+                '''
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
