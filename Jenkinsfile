@@ -59,7 +59,7 @@ pipeline {
                 DOCKER_TAG = "lastest"
             }
             steps{
-                sh 'docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}
+                sh 'docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}'
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
