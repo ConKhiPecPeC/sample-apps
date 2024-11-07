@@ -54,7 +54,7 @@ pipeline {
                 }
             }
         }
-
+/* 
         stage('Build Docker Image'){
             steps{
                 sh '''
@@ -74,7 +74,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Pull Docker Image and Run Container') {
             steps {
                 script {
@@ -101,12 +101,12 @@ pipeline {
 
                                         # Pull the Docker image
                                         echo "Pulling Docker image ${DOCKER_IMAGE}..."
-                                        sudo docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
 
-                                        # Run the Docker container with --rm to avoid name conflicts
-                                        echo "Running Docker container from image ${DOCKER_IMAGE}..."
-                                        sudo docker run -it -p 80:8080 --name my-container ${DOCKER_IMAGE}:${DOCKER_TAG}
-
+                                        docker pull ${DOCKER_IMAGE}:${DOCKER_TAG} &&
+                                        docker stop 2048-game || true &&
+                                        docker rm 2048-game || true &&
+                                        sudo docker run -d -it --name 2048-Game -p 80:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}
+                                        
                                         # Print Docker logs if something goes wrong
                                         echo "Docker logs:"
                                         sudo journalctl -u docker.service --since "1 hour ago" || echo "No Docker logs found"
