@@ -8,6 +8,7 @@ RUN npm install --include=dev
 #
 ENV NODE_ENV=development
 RUN npm run build
+RUN echo "TESTING"
 
 FROM node:16-slim
 RUN npm install http-server -g
