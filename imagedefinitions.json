@@ -1,6 +1,6 @@
 [
     {
         "name": "2048-game",
-        "imageUri": "199464522308.dkr.ecr.us-east-1.amazonaws.com/2048-games"
+        "imageUri": "199464522308.dkr.ecr.us-east-1.amazonaws.com/2048-game"
     }
 ]
