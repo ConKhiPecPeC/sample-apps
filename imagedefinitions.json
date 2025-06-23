@@ -1,0 +1,6 @@
+[
+    {
+        "name": "2048-game",
+        "imageUri": "${secret.IMAGE_URI}"
+    }
+]
