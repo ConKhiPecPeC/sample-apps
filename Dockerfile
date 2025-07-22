@@ -9,7 +9,6 @@ RUN npm install --include=dev
 ENV NODE_ENV=development
 RUN npm run build
 RUN echo "TESTING"
-RUN echo "$NODE_ENV"
 FROM node:16-slim
 RUN npm install http-server -g
 RUN mkdir /public
